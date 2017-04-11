@@ -1,0 +1,56 @@
+##js接口实现方法
+###注释申明+辅助类Interface及Interface.ensureImplements（填鸭式）
+  //Interfaces
+  var Composite = new Interface('Composite',['add','remove','getChild']);
+  var FormItem = new Interface('FormItem',['save']);
+ 
+  //CompositeForm Class
+  var CompositeForm = function(id,method,action) {//implements Composite, FormItem
+  ...
+  };
+  
+  ...
+  
+  function addForm(formInstance) {
+    Interface.ensureImplements(formInstance,Composite,FormItem);
+    //This function will throw an error if a require method is not implemented,
+    //halting execution of the function
+    //All code beneath this line will be executed ony if the checks pass.
+    ..
+    }
+###Interface类
+  var Interface = function(name,methods) {
+    if(arguments.length != 2) {
+      throw new Error("Interface constructor called width" + arguments.length + "arguments,but expected exactly 2.");
+   
+    }
+    this.name = name;
+    this.method = [];
+    for(var i = 0,len = methods.length;i < len;i++) {
+      if(typeof methods[i] !== 'string') {
+        throw new Error("Interface constructor expects method names to be passed in as a string.");
+        
+      }
+      this.method.push(methods[i]);
+    }
+  };
+  Interface.ensureImplements = function(object) {
+    if(arguments.length < 2) {
+      throw new  Error("Function Interface.ensureImplements called with"+arguments.length + "arguments,but expected at least 2.");
+      }
+    for(var i = 1,len = arguments.length;i < len ;i++){
+      var interface = arguments[i];
+      if(interface.constructor !== Interface) {
+        throw new Error("Function Interface.ensureImplements expects arguments two and above to be instances of Interface.");
+        
+      }
+      for(var j = 0,methodsLen = interface.methods.length;j < methodsLen;j++) {
+        var method = interface.methods[j];
+        if(!object[method] || typeof object[method] !== 'function') {
+          throw new Error("Function Interface.ensureImplements: object does not implement the" +interface name +
+          "interface.method"+method+"was not found.");
+        }
+      }
+    }
+    
+  };
